@@ -15,12 +15,12 @@ import java.util.concurrent.TimeUnit;
 public class Client {
     private static final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         readAndSend(getProperties(args[0]), args[0]);
     }
 
     private static Pojo getPojoObject(String[] values, String startTime, String submitTime,
-                                      String path) {
+                                      String path) throws IOException {
         try (InputStream input = new BufferedInputStream(new FileInputStream(path))) {
             Properties prop = new Properties();
             prop.load(input);
@@ -36,13 +36,10 @@ public class Client {
                 answers.add(new Answer(qId, answer));
             }
             return new Pojo(startTime, submitTime, answers.toString());
-        } catch (IOException ex) {
-            System.out.println("Error occurred while reading config properties. Error : " + ex);
-            return null;
         }
     }
 
-    private static String[] getProperties(String path) {
+    private static String[] getProperties(String path) throws IOException {
         List<String> props = new ArrayList<>();
         try (InputStream input = new BufferedInputStream(new FileInputStream(path))) {
             Properties prop = new Properties();
@@ -52,18 +49,17 @@ public class Client {
             props.add(prop.getProperty("READ"));
             props.add(prop.getProperty("WRITE"));
             props.add(prop.getProperty("DATA"));
-        } catch (IOException ex) {
-            System.out.println("Error occurred while reading config properties. Error : " + ex);
         }
         return props.toArray(new String[0]);
     }
 
-    private static void writeSentData(String line, String location) throws IOException {
+    private static void writeSentData(String line, String start, String submit, String location)
+            throws IOException {
         LocalDateTime now = LocalDateTime.now();
         try (FileWriter writer = new FileWriter(location, true)) {
-            writer.write(f.format(now) + "    " + line + "\n");
+            writer.write(f.format(now) + "    " + start + "    " + submit + "    " + line + "\n");
         } catch (Exception ex) {
-            System.out.println("Error occurred while writing to file. Error : " + ex);
+            System.out.println("FILE WRITE ERROR. ERROR : " + ex);
         }
     }
 
@@ -75,13 +71,13 @@ public class Client {
                 if (line.isEmpty()) {
                     continue;
                 }
-                int delay = random.nextInt(25);
+                int delay = 5 + random.nextInt(20);
                 System.out.println("---------------------   NEXT DATA SEND TIME " + getNextTime(delay));
                 TimeUnit.SECONDS.sleep(delay);
                 String[] values = line.split("\t");
 
-                Pojo pojoObject = getPojoObject(values, getTime(0), getTime(random.nextInt(50)),
-                        path);
+                Pojo pojoObject = getPojoObject(values, getTime(0),
+                        getTime(5 + random.nextInt(50)), path);
 
                 ObjectMapper mapper = new ObjectMapper();
 
@@ -89,15 +85,15 @@ public class Client {
 
                 System.out.println("---------------------   SENDING DATA : " + Arrays.toString(values));
                 if (postData(jsonData, props[0])) {
-                    writeSentData(line, props[2]);
+                    writeSentData(line, pojoObject.startDate, pojoObject.submitDate, props[2]);
                 } else {
-                    System.out.println("---------------------   FAILED. EXITING.");
+                    System.out.println("---------------------   EXITING.");
                     return;
                 }
             }
             System.out.println("---------------------   DONE");
         } catch (IOException | InterruptedException e) {
-            System.out.println("Error : " + e);
+            System.out.println("ERROR : " + e);
         }
     }
 
@@ -124,12 +120,13 @@ public class Client {
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
             if (response.getCode() == 201) {
-                System.out.println("---------------------   STATUS : SUCCESS");
+                System.out.println("---------------------   STATUS : SUCCESS (201)");
                 return true;
+            } else {
+                System.out.println("---------------------   STATUS : FAILED (" + response.getCode() + ")");
             }
         } catch (Throwable ex) {
-            System.out.println("---------------------   STATUS : FAILED");
-            System.out.println("---------------------   ERROR : " + ex);
+            System.out.println("---------------------   STATUS : FAILED (" + ex + ")");
             return false;
         }
         return false;
