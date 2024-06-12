@@ -76,6 +76,8 @@ public class Client {
                 TimeUnit.SECONDS.sleep(delay);
                 String[] values = line.split("\t");
 
+                System.out.println("Field count using TAB as separator : " + values.length);
+
                 Pojo pojoObject = getPojoObject(values, getTime(0),
                         getTime(5 + random.nextInt(50)), path);
 
@@ -116,6 +118,7 @@ public class Client {
         try {
             HttpPost request = new HttpPost(URL);
             StringEntity params = new StringEntity(jsonData);
+            System.out.println("sending json : \n" + jsonData);
             request.addHeader("content-type", "application/json");
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
