@@ -75,7 +75,7 @@ public class Client {
                     continue;
                 }
                 int delay = 5 + random.nextInt(20);
-                System.out.println("NEXT DATA SEND TIME " + getNextTime(delay));
+                System.out.println("\nNEXT DATA SEND TIME " + getNextTime(delay));
                 TimeUnit.SECONDS.sleep(delay);
                 String[] values = line.split("\t");
 
@@ -92,13 +92,13 @@ public class Client {
                 if (postData(jsonData, props[0])) {
                     writeSentData(line, pojoObject.startDate, pojoObject.submitDate, props[2]);
                 } else {
-                    System.out.println("EXITING.");
+                    System.out.println("\nEXITING.");
                     return;
                 }
             }
-            System.out.println("DONE");
+            System.out.println("\nDONE");
         } catch (IOException | InterruptedException e) {
-            System.out.println("ERROR : " + e);
+            System.out.println("\nERROR : " + e);
         }
     }
 
@@ -132,13 +132,16 @@ public class Client {
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
             if (response.getCode() == 201) {
-                System.out.println("STATUS : SUCCESS (201)");
+                System.out.println("\nSTATUS : SUCCESS (201)");
+                System.out.println("_________________________________________________");
                 return true;
             } else {
-                System.out.println("STATUS : FAILED (" + response.getCode() + ")");
+                System.out.println("\nSTATUS : FAILED (" + response.getCode() + ")");
+                System.out.println("_________________________________________________");
             }
         } catch (Throwable ex) {
-            System.out.println("STATUS : FAILED (" + ex + ")");
+            System.out.println("\nSTATUS : FAILED (" + ex + ")");
+            System.out.println("_________________________________________________");
             return false;
         }
         return false;
