@@ -120,6 +120,12 @@ public class Client {
             StringEntity params = new StringEntity(jsonData);
             System.out.println("sending json : \n" + jsonData);
             request.addHeader("content-type", "application/json");
+            request.addHeader("Accept-Language", "en-US,en;q=0.5");
+            request.addHeader("Accept-Encoding", "gzip, deflate, br, zstd");
+            request.addHeader("x-ms-form-request-source", "ms-formweb");
+            request.addHeader("x-ms-form-request-ring", "business");
+            request.addHeader("odata-maxverion", "4.0");
+            request.addHeader("odata-version", "4.0");
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
             if (response.getCode() == 201) {
