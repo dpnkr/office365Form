@@ -6,6 +6,8 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,7 +24,7 @@ public class Client {
 
     private static Pojo getPojoObject(String[] values, String startTime, String submitTime,
                                       String path) throws IOException {
-        try (InputStream input = new BufferedInputStream(new FileInputStream(path))) {
+        try (InputStream input = new BufferedInputStream(Files.newInputStream(Paths.get(path)))) {
             Properties prop = new Properties();
             prop.load(input);
             // get the property value and print it out
@@ -41,17 +43,17 @@ public class Client {
     }
 
     private static String[] getProperties(String path) throws IOException {
-        List<String> props = new ArrayList<>();
-        try (InputStream input = new BufferedInputStream(new FileInputStream(path))) {
+        List<String> propList = new ArrayList<>();
+        try (InputStream input = new BufferedInputStream(Files.newInputStream(Paths.get(path)))) {
             Properties prop = new Properties();
             prop.load(input);
             // get the property value and print it out
-            props.add(prop.getProperty("URL"));
-            props.add(prop.getProperty("READ"));
-            props.add(prop.getProperty("WRITE"));
-            props.add(prop.getProperty("DATA"));
+            propList.add(prop.getProperty("URL"));
+            propList.add(prop.getProperty("READ"));
+            propList.add(prop.getProperty("WRITE"));
+            propList.add(prop.getProperty("DATA"));
         }
-        return props.toArray(new String[0]);
+        return propList.toArray(new String[0]);
     }
 
     private static void writeSentData(String line, String start, String submit, String location)
@@ -73,7 +75,7 @@ public class Client {
                     continue;
                 }
                 int delay = 5 + random.nextInt(20);
-                System.out.println("---------------------   NEXT DATA SEND TIME " + getNextTime(delay));
+                System.out.println("NEXT DATA SEND TIME " + getNextTime(delay));
                 TimeUnit.SECONDS.sleep(delay);
                 String[] values = line.split("\t");
 
@@ -86,15 +88,15 @@ public class Client {
 
                 String jsonData = mapper.writeValueAsString(pojoObject);
 
-                System.out.println("---------------------   SENDING DATA : " + Arrays.toString(values));
+                System.out.println("SENDING DATA : " + Arrays.toString(values));
                 if (postData(jsonData, props[0])) {
                     writeSentData(line, pojoObject.startDate, pojoObject.submitDate, props[2]);
                 } else {
-                    System.out.println("---------------------   EXITING.");
+                    System.out.println("EXITING.");
                     return;
                 }
             }
-            System.out.println("---------------------   DONE");
+            System.out.println("DONE");
         } catch (IOException | InterruptedException e) {
             System.out.println("ERROR : " + e);
         }
@@ -119,7 +121,7 @@ public class Client {
         try {
             HttpPost request = new HttpPost(URL);
             StringEntity params = new StringEntity(jsonData);
-            System.out.println("sending json : \n" + jsonData);
+            System.out.println("JSON Data : \n" + jsonData);
             request.addHeader("content-type", "application/json");
             request.addHeader("Accept-Language", "en-US,en;q=0.5");
             request.addHeader("Accept-Encoding", "gzip, deflate, br, zstd");
@@ -130,13 +132,13 @@ public class Client {
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
             if (response.getCode() == 201) {
-                System.out.println("---------------------   STATUS : SUCCESS (201)");
+                System.out.println("STATUS : SUCCESS (201)");
                 return true;
             } else {
-                System.out.println("---------------------   STATUS : FAILED (" + response.getCode() + ")");
+                System.out.println("STATUS : FAILED (" + response.getCode() + ")");
             }
         } catch (Throwable ex) {
-            System.out.println("---------------------   STATUS : FAILED (" + ex + ")");
+            System.out.println("STATUS : FAILED (" + ex + ")");
             return false;
         }
         return false;
