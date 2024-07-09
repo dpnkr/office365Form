@@ -36,6 +36,7 @@ public class Client {
                 if (answer == null) {
                     answer = values[index++];
                 }
+                System.out.println("Q[" + i + "] : A[" + i + "] = " + answer);
                 answers.add(new Answer(qId, answer));
             }
             return new Pojo(startTime, submitTime, answers.toString());
@@ -63,6 +64,7 @@ public class Client {
             writer.write(f.format(now) + "    " + start + "    " + submit + "    " + line + "\n");
         } catch (Exception ex) {
             System.out.println("FILE WRITE ERROR. ERROR : " + ex);
+            ex.printStackTrace();
         }
     }
 
@@ -99,6 +101,7 @@ public class Client {
             System.out.println("\nDONE");
         } catch (IOException | InterruptedException e) {
             System.out.println("\nERROR : " + e);
+            e.printStackTrace();
         }
     }
 
@@ -142,6 +145,7 @@ public class Client {
         } catch (Throwable ex) {
             System.out.println("\nSTATUS : FAILED (" + ex + ")");
             System.out.println("_________________________________________________");
+            ex.printStackTrace();
             return false;
         }
         return false;
