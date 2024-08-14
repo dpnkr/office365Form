@@ -6,8 +6,6 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -21,26 +19,20 @@ public class Client {
     private static final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void main(String[] args) throws IOException {
-        Charset defaultCharset1 = Charset.defaultCharset();
-        String defaultCharset2 = System.getProperty("file.encoding");
-        // printing the name of default charset
-        System.out.println("Charset.defaultCharset() : " + defaultCharset1.name());
-        System.out.println("System.getProperty(\"file.encoding\") : " + defaultCharset2);
         readAndSend(getProperties(args[0]), args[0]);
     }
 
     private static Pojo getPojoObject(String[] values, String startTime, String submitTime,
                                       String path) throws IOException {
-        Properties properties = new Properties();
-        try (final InputStreamReader in = new InputStreamReader(
-                new FileInputStream(path), StandardCharsets.ISO_8859_1)) {
-            properties.load(in);
+        try (InputStream input = new BufferedInputStream(Files.newInputStream(Paths.get(path)))) {
+            Properties prop = new Properties();
+            prop.load(input);
             // get the property value and print it out
             List<Answer> answers = new ArrayList<>();
-            int noq = Integer.parseInt(properties.getProperty("NOQ"));
+            int noq = Integer.parseInt(prop.getProperty("NOQ"));
             for (int i = 1, index = 0; i <= noq; i++) {
-                String qId = properties.getProperty("Q" + i);
-                String answer = properties.getProperty("A" + i);
+                String qId = prop.getProperty("Q" + i);
+                String answer = prop.getProperty("A" + i);
                 if (answer == null) {
                     answer = values[index++];
                 }
@@ -159,3 +151,4 @@ public class Client {
         return false;
     }
 }
+
