@@ -6,6 +6,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,6 +21,11 @@ public class Client {
     private static final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void main(String[] args) throws IOException {
+        Charset defaultCharset1 = Charset.defaultCharset();
+        String defaultCharset2 = System.getProperty("file.encoding");
+        // printing the name of default charset
+        System.out.println("Charset.defaultCharset() : " + defaultCharset1.name());
+        System.out.println("System.getProperty(\"file.encoding\") : " + defaultCharset2);
         readAndSend(getProperties(args[0]), args[0]);
     }
 
