@@ -6,6 +6,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -24,9 +25,10 @@ public class Client {
 
     private static Pojo getPojoObject(String[] values, String startTime, String submitTime,
                                       String path) throws IOException {
-        try (InputStream input = new BufferedInputStream(Files.newInputStream(Paths.get(path)))) {
-            Properties prop = new Properties();
-            prop.load(input);
+        Properties prop = new Properties();
+        try (final InputStreamReader in = new InputStreamReader(
+                new FileInputStream(path), StandardCharsets.UTF_8)) {
+            prop.load(in);
             // get the property value and print it out
             List<Answer> answers = new ArrayList<>();
             int noq = Integer.parseInt(prop.getProperty("NOQ"));
