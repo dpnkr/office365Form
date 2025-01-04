@@ -151,8 +151,7 @@ public class Client {
                 String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
                 System.out.println("\nStatus : " + response.getCode() + "[" + response.getReasonPhrase() + "]");
                 if (response.getCode() != 201) {
-                    JSONObject object = (JSONObject) new JSONParser().parse(responseBody);
-                    System.out.println("Response : \n" + object.toJSONString());
+                    System.out.println("Response : \n" + responseBody);
                 }
                 System.out.println("_________________________________________________");
                 return response.getCode() == 201;
