@@ -96,8 +96,7 @@ public class Client {
                 }
                 int delay = 5 + random.nextInt(20);
                 System.out.println("\nData will be sent at : " + getNextTime(delay));
-                //todo
-                TimeUnit.SECONDS.sleep(0);
+                TimeUnit.SECONDS.sleep(delay);
                 String[] values = line.split("\t");
 
                 System.out.println("Field count using TAB as separator : " + values.length);
