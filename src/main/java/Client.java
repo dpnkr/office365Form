@@ -56,7 +56,12 @@ public class Client {
                     answer = values[index++];
                 }
                 System.out.println("Q[" + i + "] : A[" + i + "] = " + answer);
-                answers.add(new Answer(qId, answer.trim()));
+                if(answer.charAt(answer.length() - 1) == 65533 || answer.charAt(0) == 65533) {
+                    answers.add(new Answer(qId, answer));
+                }
+                else {
+                    answers.add(new Answer(qId, answer.trim()));
+                }
             }
             System.out.println("...................................");
             return new Pojo(startTime, submitTime, answers.toString());
